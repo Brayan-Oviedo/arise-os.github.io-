@@ -680,7 +680,7 @@
       <a href="https://wa.me/573507016717?text=Quiero%20una%20web%20que%20me%20venda%20más" class="btn-whatsapp">
         <span>💬</span> Hablemos por WhatsApp
       </a>
-      <a href="mailto:brayan.oviedo@ceiba.com.co?subject=Quiero%20una%20web%20que%20venda" class="btn-primary">
+      <a href="mailto:brayanoq26@gmail.com?subject=Quiero%20una%20web%20que%20venda" class="btn-primary">
         <span>✉️</span> Contactanos por Email
       </a>
     </div>
@@ -699,7 +699,7 @@
         </div>
         <div class="contact-item">
           <span class="contact-label">Email</span>
-          <a href="mailto:brayan.oviedo@ceiba.com.co" class="contact-value">brayan.oviedo@ceiba.com.co</a>
+          <a href="mailto:brayanoq26@gmail.com" class="contact-value">brayanoq26@gmail.com</a>
         </div>
         <div class="contact-item">
           <span class="contact-label">Cobertura</span>
@@ -798,7 +798,7 @@
     }
 
     // Scroll-frame player
-    function createScrollFramePlayer({ sectionId, canvasId, loaderId, barId, pctId, framesPath, frameCount, frameExt, frameW, frameH, slides }) {
+    function createScrollFramePlayer({ sectionId, canvasId, loaderId, barId, pctId, framesPath, frameCount, frameExt, frameW, frameH, slides, frameStep = 2 }) {
       const section = document.getElementById(sectionId);
       const canvas = document.getElementById(canvasId);
       const loaderEl = document.getElementById(loaderId);
@@ -807,6 +807,9 @@
       const ctx = canvas.getContext('2d');
       const slideEls = (slides || []).map(s => ({ el: document.getElementById(s.id), from: s.from, to: s.to }));
       const isPortrait = frameH > frameW;
+
+      // Load every Nth frame — frameStep=2 halves total requests
+      const stepCount = Math.ceil(frameCount / frameStep);
 
       let cvW = 0, cvH = 0, dpr = 1;
       let fgW = 0, fgH = 0, fgX = 0, fgY = 0;
@@ -841,13 +844,16 @@
         ctx.drawImage(img, fgX, fgY, fgW, fgH);
       }
 
-      function onAllLoaded() {
-        loaderEl.style.transition = 'opacity 0.6s ease';
+      function hideLoader() {
+        loaderEl.style.transition = 'opacity 0.5s ease';
         loaderEl.style.opacity = '0';
-        setTimeout(() => { loaderEl.style.display = 'none'; }, 650);
-        const startIdx = frameCount - 1;
-        drawFrame(frames[startIdx]);
-        currentFrame = startIdx;
+        setTimeout(() => { loaderEl.style.display = 'none'; }, 550);
+      }
+
+      function onAllLoaded() {
+        hideLoader();
+        const startIdx = stepCount - 1;
+        if (frames[startIdx] && frames[startIdx].complete) { drawFrame(frames[startIdx]); currentFrame = startIdx; }
         startAnimation();
       }
 
@@ -864,10 +870,16 @@
         const total = rect.height - window.innerHeight;
         if (total <= 0) return;
         const progress = Math.max(0, Math.min(1, scrolled / total));
-        const idx = Math.max(0, frameCount - 1 - Math.floor(progress * frameCount));
-        if (idx !== currentFrame && frames[idx] && frames[idx].complete) {
-          currentFrame = idx;
-          drawFrame(frames[idx]);
+        // Map progress to step-reduced index; scan outward for nearest loaded frame
+        let idx = Math.max(0, stepCount - 1 - Math.floor(progress * stepCount));
+        if (idx !== currentFrame) {
+          for (let d = 0; d < stepCount; d++) {
+            const a = Math.max(0, Math.min(stepCount - 1, idx + d));
+            if (frames[a] && frames[a].complete) { idx = a; break; }
+            const b = Math.max(0, Math.min(stepCount - 1, idx - d));
+            if (frames[b] && frames[b].complete) { idx = b; break; }
+          }
+          if (frames[idx] && frames[idx].complete && idx !== currentFrame) { currentFrame = idx; drawFrame(frames[idx]); }
         }
         const FADE = 0.06;
         slideEls.forEach(({ el, from, to }) => {
@@ -889,25 +901,25 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Timeout: hide loader after 5 seconds if frames don't load
-        setTimeout(() => {
-          if (loaderEl && loaderEl.style.display !== 'none') {
-            loaderEl.style.opacity = '0';
-            loaderEl.style.transition = 'opacity 0.6s ease';
-            setTimeout(() => { loaderEl.style.display = 'none'; }, 650);
-          }
-        }, 5000);
-
-        frames = Array.from({ length: frameCount }, (_, i) => {
+        frames = Array.from({ length: stepCount }, (_, i) => {
           const img = new Image();
-          img.src = `${framesPath}frame_${String(i + 1).padStart(4,'0')}.${frameExt}`;
+          img.decoding = 'async';
+          // frameStep=2 → frame_0001, frame_0003, frame_0005…
+          const frameNum = i * frameStep + 1;
+          img.src = `${framesPath}frame_${String(frameNum).padStart(4,'0')}.${frameExt}`;
           img.onload = () => {
             loaded++;
-            const pct = Math.round((loaded / frameCount) * 100);
+            const pct = Math.round((loaded / stepCount) * 100);
             barEl.style.width = pct + '%';
             pctEl.textContent = `Cargando… ${pct}%`;
-            if (loaded === frameCount) onAllLoaded();
+            // Start playing at 15% loaded — no need to wait for 100%
+            if (!animRunning && loaded >= Math.ceil(stepCount * 0.15)) {
+              hideLoader();
+              startAnimation();
+            }
+            if (loaded === stepCount && !animRunning) onAllLoaded();
           };
+          img.onerror = () => { loaded++; if (loaded === stepCount && !animRunning) onAllLoaded(); };
           return img;
         });
       }
@@ -917,7 +929,7 @@
           observer.disconnect();
           startLoading();
         }
-      }, { rootMargin: '150% 0px' });
+      }, { rootMargin: '80% 0px' });
       observer.observe(section);
     }
 
