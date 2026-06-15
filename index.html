@@ -8,9 +8,9 @@
   <meta name="keywords" content="web de ventas, página de conversión, diseño web premium, página que vende, conversión">
 
   <!-- Preload first visible frame of each scroll section — starts downloading before any JS runs -->
-  <link rel="preload" href="./frames/clocks/frame_0665.jpg" as="image">
-  <link rel="preload" href="./frames/airpods/frame_0473.jpg" as="image">
-  <link rel="preload" href="./frames/aroma/frame_0665.jpg" as="image">
+  <link rel="preload" href="./frames/clocks/frame_0667.jpg" as="image">
+  <link rel="preload" href="./frames/airpods/frame_0475.jpg" as="image">
+  <link rel="preload" href="./frames/aroma/frame_0667.jpg" as="image">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -888,6 +888,10 @@
         setTimeout(function () { el.style.display = 'none'; }, 950);
       }
       setTimeout(function () { minPassed = true; tryHide(); }, MIN_MS);
+      // Safety: always hide splash by 2.5s even if a frame request hangs
+      setTimeout(function () {
+        count = TOTAL; minPassed = true; tryHide();
+      }, 2500);
       window._splashSectionReady = function () {
         count++;
         var pct = Math.round((count / TOTAL) * 100);
@@ -1036,7 +1040,7 @@
         sectionId: 'scroll-clocks', canvasId: 'canvas-clocks',
         loaderId: 'loader-clocks', barId: 'bar-clocks', pctId: 'pct-clocks',
         framesPath: './frames/clocks/',
-        frameCount: 667, frameExt: 'jpg', frameW: 1280, frameH: 720, frameStep: 4,
+        frameCount: 667, frameExt: 'jpg', frameW: 1280, frameH: 720, frameStep: 3,
         slides: [
           { id: 'sc-1', from: 0, to: 0.38 },
           { id: 'sc-2', from: 0.32, to: 0.72 },
@@ -1047,7 +1051,7 @@
         sectionId: 'scroll-airpods', canvasId: 'canvas-airpods',
         loaderId: 'loader-airpods', barId: 'bar-airpods', pctId: 'pct-airpods',
         framesPath: './frames/airpods/',
-        frameCount: 476, frameExt: 'jpg', frameW: 720, frameH: 1280, frameStep: 4,
+        frameCount: 476, frameExt: 'jpg', frameW: 720, frameH: 1280, frameStep: 3,
         slides: [
           { id: 'sa-1', from: 0, to: 0.38 },
           { id: 'sa-2', from: 0.32, to: 0.72 },
@@ -1058,7 +1062,7 @@
         sectionId: 'scroll-aroma', canvasId: 'canvas-aroma',
         loaderId: 'loader-aroma', barId: 'bar-aroma', pctId: 'pct-aroma',
         framesPath: './frames/aroma/',
-        frameCount: 667, frameExt: 'jpg', frameW: 1280, frameH: 720, frameStep: 4,
+        frameCount: 667, frameExt: 'jpg', frameW: 1280, frameH: 720, frameStep: 3,
         slides: [
           { id: 'sm-1', from: 0, to: 0.38 },
           { id: 'sm-2', from: 0.32, to: 0.72 },
