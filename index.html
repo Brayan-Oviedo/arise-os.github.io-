@@ -513,11 +513,6 @@
       <div id="splash-wordmark">Arise<span>Pages</span></div>
       <div id="splash-rule"></div>
       <div id="splash-tagline">Diseño que convierte</div>
-      <div id="splash-track"><div id="splash-fill"></div></div>
-      <div id="splash-meta">
-        <span>Cargando experiencia</span>
-        <span id="splash-num">0%</span>
-      </div>
     </div>
   </div>
 
@@ -546,8 +541,8 @@
         Desde $100. Sin compromisos. Comienza hoy.
       </p>
       <div class="hero-actions">
-        <button class="btn-primary" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})" >
-          Ver Precios
+        <button class="btn-primary" onclick="document.getElementById('examples').scrollIntoView({behavior:'smooth'})">
+          Ver Ejemplos
         </button>
         <a href="https://wa.me/573507016717?text=Quiero%20una%20web%20que%20venda" class="btn-ghost">
           Hablemos por WhatsApp
@@ -876,7 +871,7 @@
 
     // Splash coordinator — exits as soon as all 3 first-frames are drawn + MIN_MS
     (function () {
-      var TOTAL = 3, MIN_MS = 900, count = 0, minPassed = false, done = false;
+      var TOTAL = 3, MIN_MS = 3000, count = 0, minPassed = false, done = false;
       function doHide() {
         if (done) return; done = true;
         var el = document.getElementById('splash');
